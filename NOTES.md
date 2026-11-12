@@ -79,3 +79,17 @@ tested without a real login.
 - `components/DataProvider.tsx`: loads classes + assignments once and shares
   them across pages.
 - Privacy note on the login page (pilot checklist item).
+
+## Step 4: classes
+
+- `app/(main)/classes/page.tsx` + `components/ClassForm.tsx`.
+- Short name is suggested from the class name (`suggestShortName` in
+  `lib/classColors.ts`: skips "AP", "Honors", etc., so "AP US History" →
+  "hist") and must be unique, because quick-add matches on it.
+- The add form stays open after each add, since new users add 5–7 classes in a row.
+- Delete asks for confirmation inline (no browser `confirm()` popup) and is
+  blocked when the class has assignments, both in the UI and in the database
+  (`on delete restrict`).
+- New users with zero classes are redirected to /classes with a welcome
+  message (`FirstRunRedirect` in `components/AppShell.tsx`).
+- No server actions (static site): writes go through the DataStore.

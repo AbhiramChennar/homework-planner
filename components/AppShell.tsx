@@ -11,7 +11,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useAuth } from "./AuthProvider";
-import { DataProvider } from "./DataProvider";
+import { DataProvider, useData } from "./DataProvider";
 import { Spinner } from "./ui";
 
 const NAV = [
@@ -69,6 +69,22 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </header>
         <main className="flex-1 px-4 py-5">{children}</main>
       </div>
+      <FirstRunRedirect pathname={pathname} />
     </DataProvider>
   );
+}
+
+/**
+ * A brand-new user has no classes, and nothing else works without them,
+ * so send them to /classes (which shows a welcome message) first.
+ * The More page stays reachable so they can still sign out.
+ */
+function FirstRunRedirect({ pathname }: { pathname: string }) {
+  const { loading, error, classes } = useData();
+  const router = useRouter();
+  const needsClasses = !loading && !error && classes.length === 0;
+  useEffect(() => {
+    if (needsClasses && pathname !== "/classes" && pathname !== "/settings") router.replace("/classes/");
+  }, [needsClasses, pathname, router]);
+  return null;
 }
