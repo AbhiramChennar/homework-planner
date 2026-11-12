@@ -93,3 +93,21 @@ tested without a real login.
 - New users with zero classes are redirected to /classes with a welcome
   message (`FirstRunRedirect` in `components/AppShell.tsx`).
 - No server actions (static site): writes go through the DataStore.
+
+## Step 5: quick-add parser
+
+- `lib/parser.ts`, tested by `tests/parser.test.ts` (60 cases; read the tests,
+  they're the specification).
+- Order matters: duration → date → class → leftover title. Durations and
+  dates are taken first so "fri" or "45m" can never be read as a class.
+- Class matching: an exact short name wins; otherwise a word that is the start
+  of exactly one class name (at least 3 letters, so "ch 5" isn't Chemistry).
+  Ambiguous prefixes ("phys" → Physics or Physical Education) match nothing
+  rather than guessing.
+- Weekday names mean the next occurrence; today's weekday means today, since an
+  11:59pm deadline today hasn't passed yet.
+- "1/5" typed in November means next January: a month/day more than 60 days
+  in the past rolls to next year; anything more recent is overdue work.
+- Impossible dates (13/45) are rejected rather than rolled over by `new Date()`.
+- Category keywords stay in the title ("essay" is both the category and a
+  good title).
