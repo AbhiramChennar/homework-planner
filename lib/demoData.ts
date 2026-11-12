@@ -4,6 +4,7 @@
 // and insights have a realistic pattern to find.
 import type { Assignment, Category, Class } from "@/lib/types";
 import { DEMO_USER_ID, type DemoData } from "@/lib/data/localStore";
+import { predictMinutes } from "@/lib/estimator";
 
 interface SampleClass {
   name: string;
@@ -109,6 +110,14 @@ export function createSampleData(now: Date): DemoData {
   add(4, 0, 1, false); // Spanish flashcards, due tomorrow
   add(0, 0, 3, false); // History reading, due in 3 days
   add(1, 2, -1, false); // Calc quiz review, overdue
+
+  // Fill in predicted_minutes the way the app would have at the time each
+  // assignment was created: using only work completed before then. This gives
+  // the Insights page an honest estimate-vs-prediction comparison.
+  for (const a of assignments) {
+    const history = assignments.filter((h) => h.completed_at !== null && h.completed_at < a.created_at);
+    a.predicted_minutes = predictMinutes(a, history).minutes;
+  }
 
   return { classes, assignments, plans: [], feedback: [] };
 }

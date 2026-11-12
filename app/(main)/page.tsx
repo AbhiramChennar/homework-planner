@@ -18,6 +18,7 @@ import {
 } from "@/lib/currentPlan";
 import { formatDue, formatMinutes, formatTime } from "@/lib/dates";
 import { parseDurationText } from "@/lib/parser";
+import { MODEL_VERSION } from "@/lib/estimator";
 import { buildPlan, type PlanStep } from "@/lib/scheduler";
 import type { Assignment, Class } from "@/lib/types";
 
@@ -63,7 +64,8 @@ export default function TonightPage() {
         items: built.items.flatMap((s) =>
           s.kind === "work" ? [{ assignment_id: s.assignmentId, minutes: s.minutes, order: s.order }] : [],
         ),
-        model_version: "baseline",
+        // Which estimator produced the predicted minutes the plan was built from.
+        model_version: MODEL_VERSION,
       });
     } catch {
       setSaveWarning("Your plan is ready, but it couldn't be saved to your account (are you offline?).");
@@ -228,6 +230,7 @@ function WorkRow({
   classById: Map<string, Class>;
   now: Date;
 }) {
+  const { explanations } = useData();
   const a = byId.get(step.assignmentId);
   if (!a) {
     return <div className="rounded-xl border border-border px-3 py-2 text-sm text-muted">(deleted assignment)</div>;
@@ -239,6 +242,7 @@ function WorkRow({
         cls={classById.get(a.class_id)}
         now={now}
         actions={<DoneButton assignment={a} />}
+        explanation={explanations.get(a.class_id)}
       />
       {step.isChunk && (
         <p className="pl-2 text-xs text-muted">

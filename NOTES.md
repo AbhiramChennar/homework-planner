@@ -176,3 +176,26 @@ tested without a real login.
 - Tested a production build served under `/homework-planner/` locally:
   redirects, links, deep links, manifest, icons and service worker scope all
   include the base path.
+
+## Step 9: estimator layer 1 (personal bias)
+
+- `lib/estimator.ts` (`predictMinutes`), tested by `tests/estimator.test.ts`.
+- Layer 0 below 3 completions with logged times in the class; layer 1 at 3+.
+- **Median**, not mean: one weird night (a 3.5× assignment) doesn't move it.
+- **Clipping to [0.25, 4]**: a typo like 500 instead of 50 counts as 4×, not 12.5×.
+- **Shrinkage** `(n × median + 5 × 1.0) / (n + 5)`: like starting with five
+  imaginary assignments where the guess was exactly right. With 3 real
+  completions at 1.5×, the ratio is 1.19; with 50, it's 1.45. The test
+  "moves toward the student's real ratio" shows the whole curve.
+- The prediction is computed when an assignment is created (or its estimate
+  or class is edited) and stored in `predicted_minutes`, always, even in
+  layer 0 (where it equals the estimate). Storing the prediction *at creation
+  time* is what makes the accuracy comparison in step 10 honest: the model
+  can't use the answer it's being graded on.
+- Sample demo data gets predictions computed the same way, using only work
+  completed before each assignment was created (tested: "no peeking").
+- Cards show `~~40m~~ ~48m` plus "You usually take ~45% longer than you
+  guess on History (4 done)". The percentage in the sentence is the raw
+  median (the student's habit); the number is the shrunk prediction (the
+  app being cautious).
+- Plans are saved with `model_version: "v1-class-factor"`.

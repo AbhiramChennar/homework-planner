@@ -84,3 +84,18 @@ describe("sample data", () => {
     expect(createSampleData(NOW)).toEqual(createSampleData(NOW));
   });
 });
+
+describe("sample data predictions", () => {
+  it("learn each class's bias: upcoming History work is predicted longer, Calculus shorter", () => {
+    const data = createSampleData(NOW);
+    const upcoming = (classId: string) => data.assignments.filter((a) => a.class_id === classId && a.status === "todo");
+    for (const a of upcoming("demo-class-1")) expect(a.predicted_minutes!).toBeGreaterThan(a.estimated_minutes); // History, bias 1.5
+    for (const a of upcoming("demo-class-2")) expect(a.predicted_minutes!).toBeLessThan(a.estimated_minutes); // Calculus, bias 0.8
+  });
+
+  it("only uses history from before each assignment was created (no peeking at the future)", () => {
+    const data = createSampleData(NOW);
+    const first = [...data.assignments].sort((a, b) => a.created_at.localeCompare(b.created_at))[0];
+    expect(first.predicted_minutes).toBe(first.estimated_minutes); // nothing to learn from yet
+  });
+});

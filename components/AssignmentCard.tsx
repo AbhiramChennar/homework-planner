@@ -13,12 +13,15 @@ export function AssignmentCard({
   now,
   onOpen,
   actions,
+  explanation,
 }: {
   assignment: Assignment;
   cls: Class | undefined;
   now: Date;
   onOpen?: () => void;
   actions?: React.ReactNode;
+  /** Why the prediction differs from the estimate (shown when it does). */
+  explanation?: string;
 }) {
   const due = new Date(assignment.due_at);
   const overdue = assignment.status === "todo" && due < now;
@@ -57,6 +60,9 @@ export function AssignmentCard({
             formatMinutes(assignment.estimated_minutes)
           )}
         </span>
+        {showPrediction && explanation && assignment.status === "todo" && (
+          <span className="mt-0.5 block text-xs text-accent">{explanation}</span>
+        )}
       </button>
       {actions && <div className="flex shrink-0 items-center gap-1 pr-2">{actions}</div>}
     </div>

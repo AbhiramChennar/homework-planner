@@ -30,7 +30,8 @@ const EMPTY_FORM: AssignmentFormValues = {
 const GROUP_ORDER: DueGroup[] = ["overdue", "today", "tomorrow", "thisWeek", "later"];
 
 export default function AssignmentsPage() {
-  const { classes, assignments, loading, error, addAssignment, editAssignment, removeAssignment } = useData();
+  const { classes, assignments, loading, error, addAssignment, editAssignment, removeAssignment, explanations } =
+    useData();
   const now = useNow();
   const quickAddRef = useRef<HTMLInputElement>(null);
   const [dialog, setDialog] = useState<DialogState>({ kind: "closed" });
@@ -73,7 +74,7 @@ export default function AssignmentsPage() {
   const classById = new Map(classes.map((c) => [c.id, c]));
 
   async function save(values: AssignmentFormResult) {
-    const row = await addAssignment({ ...values, predicted_minutes: null });
+    const row = await addAssignment(values);
     const cls = classById.get(row.class_id);
     setToast(`Added “${row.title}” for ${cls?.name ?? "class"}, due ${formatDue(new Date(row.due_at), now)}.`);
   }
@@ -150,6 +151,7 @@ export default function AssignmentsPage() {
                     now={now}
                     onOpen={() => setDialog({ kind: "edit", assignment: a })}
                     actions={<DoneButton assignment={a} />}
+                    explanation={explanations.get(a.class_id)}
                   />
                 </li>
               ))}
