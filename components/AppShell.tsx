@@ -42,10 +42,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <div className="mx-auto flex min-h-dvh max-w-xl flex-col">
         <header className="sticky top-0 z-10 border-b border-border bg-bg/95 px-4 pt-3 backdrop-blur">
           <div className="flex items-center justify-between gap-2">
-            <span className="font-semibold">Homework Planner</span>
+            <span className="whitespace-nowrap font-semibold">Homework Planner</span>
             {session.mode === "demo" && (
-              <span className="rounded-full bg-warn-soft px-2 py-0.5 text-xs font-medium text-warn">
-                Demo: data stays on this device
+              <span className="whitespace-nowrap rounded-full bg-warn-soft px-2 py-0.5 text-xs font-medium text-warn">
+                Demo<span className="hidden sm:inline">: data stays on this device</span>
               </span>
             )}
           </div>

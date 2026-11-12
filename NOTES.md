@@ -111,3 +111,22 @@ tested without a real login.
 - Impossible dates (13/45) are rejected rather than rolled over by `new Date()`.
 - Category keywords stay in the title ("essay" is both the category and a
   good title).
+
+## Step 6: assignments page
+
+- `app/(main)/assignments/page.tsx`, `components/QuickAdd.tsx`,
+  `components/AssignmentForm.tsx`, `components/AssignmentCard.tsx`,
+  `components/Dialog.tsx`, `lib/dates.ts` (+ tests).
+- Quick-add shows chips for what it understood as you type; missing required
+  parts show in amber. Enter saves when class + date + minutes are known
+  (title falls back to the category or "Homework"); otherwise it opens the
+  full form with the missing fields marked "(needed)" and focused.
+- Quick-add clears the box immediately and saves in the background (restoring
+  the text if saving fails). An earlier version made the box read-only while
+  saving, and fast typing of the next assignment got lost: found in testing.
+- Dialogs use the native `<dialog>` element: Escape-to-close, focus trapping
+  and the backdrop come from the browser instead of custom code.
+- Grouping (`dueGroup`) uses calendar days, not 24-hour periods, so
+  something due at 12:05am is "Tomorrow" even if it's only 9 hours away.
+  Rounds day differences so daylight-saving changes don't break it.
+- "n" focuses quick-add unless you're typing in a field.

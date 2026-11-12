@@ -9,6 +9,15 @@
 export const CATEGORIES = ["reading", "problem_set", "essay", "project", "study", "other"] as const;
 export type Category = (typeof CATEGORIES)[number];
 
+export const CATEGORY_LABELS: Record<Category, string> = {
+  reading: "Reading",
+  problem_set: "Problem set",
+  essay: "Essay",
+  project: "Project",
+  study: "Study",
+  other: "Other",
+};
+
 export type Status = "todo" | "done";
 
 // Which estimator produced the minutes in a plan.
