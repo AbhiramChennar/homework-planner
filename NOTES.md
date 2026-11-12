@@ -199,3 +199,22 @@ tested without a real login.
   median (the student's habit); the number is the shrunk prediction (the
   app being cautious).
 - Plans are saved with `model_version: "v1-class-factor"`.
+
+## Step 10: metrics and Insights
+
+- `lib/metrics.ts`, tested by `tests/metrics.test.ts` (hand-computed cases:
+  "the numbers match what you get by hand" is literally what the tests check).
+- **MAPE** (mean absolute percentage error) is the headline measure: "off by
+  38% on average". Percentages make a 10-minute miss on a 20-minute worksheet
+  count more than on a 3-hour project.
+- **Fair comparison:** estimate error and prediction error are computed on
+  exactly the same assignments: finished, with a logged time *and* a stored
+  prediction. Ties are reported separately (common early on, when the app
+  is still in layer 0 and prediction = estimate).
+- Insights unlocks at 5 logged completions, with a progress bar until then
+  (logging has to feel worth it).
+- Weekly chart (`components/ErrorChart.tsx`): plain SVG line chart, two
+  series. Colors validated for color-blind separation in light and dark mode
+  (orange = your guesses, blue = app). Legend + direct end labels, so color
+  is never the only cue; crosshair tooltip on hover/touch, arrow keys for
+  keyboard users, and a "Show as a table" view.

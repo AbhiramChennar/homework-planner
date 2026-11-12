@@ -18,6 +18,9 @@
   --warn-soft: #fff4e0;
   --ok: #2b8a3e;
   --ok-soft: #e6f6ea;
+  /* Chart series (validated for color-blind separation, light and dark). */
+  --series-estimate: #eb6834;
+  --series-prediction: #2a78d6;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -37,6 +40,8 @@
     --warn-soft: #3a2e17;
     --ok: #69db7c;
     --ok-soft: #1b3322;
+    --series-estimate: #d95926;
+    --series-prediction: #3987e5;
   }
 }
 
@@ -56,6 +61,8 @@
   --color-warn-soft: var(--warn-soft);
   --color-ok: var(--ok);
   --color-ok-soft: var(--ok-soft);
+  --color-series-estimate: var(--series-estimate);
+  --color-series-prediction: var(--series-prediction);
   --font-sans: var(--font-geist-sans), system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, monospace;
 }
