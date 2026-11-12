@@ -92,6 +92,22 @@ function takeDuration(words: Word[]): number | null {
   return null;
 }
 
+/**
+ * Parses a duration typed on its own, like the planner's "custom time" box:
+ * "90", "90m", "1h30", "1.5 hours". A bare number means minutes.
+ */
+export function parseDurationText(text: string): number | null {
+  const clean = text.trim().toLowerCase();
+  if (/^\d+$/.test(clean)) {
+    const n = parseInt(clean, 10);
+    return n > 0 && n <= MAX_MINUTES ? n : null;
+  }
+  const words = clean.split(/\s+/).map((w) => ({ original: w, clean: w, used: false }));
+  const minutes = takeDuration(words);
+  // Only accept it if the whole text was the duration (no leftover words).
+  return minutes !== null && words.every((w) => w.used) ? minutes : null;
+}
+
 // ─── Due dates ──────────────────────────────────────────────────────────────
 
 const WEEKDAYS: Record<string, number> = {

@@ -130,3 +130,28 @@ tested without a real login.
   something due at 12:05am is "Tomorrow" even if it's only 9 hours away.
   Rounds day differences so daylight-saving changes don't break it.
 - "n" focuses quick-add unless you're typing in a field.
+
+## Step 7: scheduler and Tonight view
+
+- `lib/scheduler.ts` (`buildPlan`), tested by `tests/scheduler.test.ts`.
+- Choices the plan left open, decided here:
+  - **Breaks count toward your time.** "I have 2 hours" means the plan
+    fits in 2 hours of clock time, breaks included.
+  - **Breaks go between assignments**, once 50+ minutes of work have built
+    up, never in the middle of one, and never at the very end.
+  - **Greedy with skipping:** if the next most urgent thing doesn't fit, it's
+    skipped and smaller later items are tried. Simple and explainable; not
+    "optimal", but optimal packing would be harder to explain and the real
+    error comes from bad time estimates, not packing.
+  - **Chunks:** an assignment over 50 minutes due 3+ days away gets one chunk
+    (25–50 minutes) per plan. Starts big projects early without crowding out
+    tonight's urgent work.
+  - The ordering is explicit tiers (overdue / within 24h / later), then due
+    time, then shorter first.
+- Tonight page (`app/(main)/page.tsx`): quick buttons 30m/1h/2h/3h or a custom
+  time ("1h30", uses `parseDurationText` from the parser). Start times begin
+  at the next 5-minute mark and are fixed when the plan is made.
+- The current plan is kept on the device (`lib/currentPlan.ts`) so it's still
+  there after switching pages; it expires at midnight. Every plan is also
+  saved to the `plans` table with `model_version` for later analysis.
+- No `/api/schedule` route: the scheduler is a pure function and runs in the browser.

@@ -1,6 +1,6 @@
 // These tests document exactly how quick-add understands what you type.
 import { describe, expect, it } from "vitest";
-import { parseQuickAdd } from "@/lib/parser";
+import { parseDurationText, parseQuickAdd } from "@/lib/parser";
 import type { Class } from "@/lib/types";
 
 function cls(id: string, name: string, short_name: string | null = null): Class {
@@ -247,5 +247,21 @@ describe("titles and edge cases", () => {
 
   it("works with no classes at all", () => {
     expect(parseQuickAdd("hist essay fri 45m", [], NOW).missing).toEqual(["class"]);
+  });
+});
+
+describe("parseDurationText (the planner's custom time box)", () => {
+  it.each([
+    ["90", 90],
+    ["90m", 90],
+    ["1h30", 90],
+    ["1.5 hours", 90],
+    [" 2h ", 120],
+    ["0", null],
+    ["abc", null],
+    ["90 apples", null],
+    ["", null],
+  ] as const)("%s → %s", (text, minutes) => {
+    expect(parseDurationText(text)).toBe(minutes);
   });
 });
