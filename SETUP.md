@@ -35,6 +35,16 @@ another account, `/admin/` says it's only for the organizer.
   - `http://localhost:3000/**`
   - `https://abhiramchennar.github.io/homework-planner/**`
 
+**Sending email to classmates:** Supabase's built-in email sender is meant
+for testing: it only allows a few emails per hour, which isn't enough for a
+class. Before inviting people, set up your own email sender under
+**Authentication → Emails → SMTP Settings**. A free option many people use is
+[Resend](https://resend.com) (its docs have a Supabase guide). Then raise the
+limit under **Authentication → Rate Limits**.
+
+Once custom SMTP is set up (Supabase only allows editing email templates
+after that), do this too:
+
 **Emails → Templates → Magic Link:** add the 6-digit code to the email, so
 people can type it instead of tapping the link (needed for the iPhone
 home-screen app, which can't receive links). For example:
@@ -45,12 +55,7 @@ home-screen app, which can't receive links). For example:
 <p>Or type this code in the app: <strong>{{ .Token }}</strong></p>
 ```
 
-**Sending email to classmates:** Supabase's built-in email sender is meant
-for testing: it only allows a few emails per hour, which isn't enough for a
-class. Before inviting people, set up your own email sender under
-**Authentication → Emails → SMTP Settings**. A free option many people use is
-[Resend](https://resend.com) (its docs have a Supabase guide). Then raise the
-limit under **Authentication → Rate Limits**.
+Until then the email has only the link, which is fine on a computer.
 
 Check: run the app locally (`npm run dev`), sign in with your own email, and
 confirm you land on the app.
