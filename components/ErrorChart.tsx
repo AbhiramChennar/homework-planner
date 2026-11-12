@@ -4,12 +4,12 @@
 // Plain SVG (no chart library) so every piece is explainable. Hovering or
 // using the arrow keys moves a crosshair that shows both values for that week;
 // a table view below has the same numbers for anyone who can't see the chart.
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { WeekAccuracy } from "@/lib/metrics";
 
-const W = 560;
 const H = 220;
-const PAD = { top: 16, right: 96, bottom: 28, left: 40 }; // right side holds the line labels
+const PAD = { top: 16, right: 64, bottom: 28, left: 40 }; // right side holds the line labels
+const FONT = 12;
 
 const MONTH = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 const weekLabel = (d: Date) => `${MONTH[d.getMonth()]} ${d.getDate()}`;
@@ -22,6 +22,17 @@ const SERIES = [
 
 export function ErrorChart({ weeks }: { weeks: WeekAccuracy[] }) {
   const [active, setActive] = useState<number | null>(null);
+  // Draw at the container's real width (rather than scaling a fixed drawing),
+  // so labels stay a readable 12px on a phone.
+  const boxRef = useRef<HTMLDivElement>(null);
+  const [W, setW] = useState(560);
+  useEffect(() => {
+    const el = boxRef.current;
+    if (!el) return;
+    const observer = new ResizeObserver(([entry]) => setW(Math.max(260, Math.round(entry.contentRect.width))));
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   const maxValue = Math.max(0.25, ...weeks.flatMap((w) => [w.estimateError ?? 0, w.predictionError ?? 0]));
   const yMax = Math.ceil(maxValue / 0.25) * 0.25; // round up to a multiple of 25%
@@ -55,7 +66,7 @@ export function ErrorChart({ weeks }: { weeks: WeekAccuracy[] }) {
         ))}
       </div>
 
-      <div className="relative">
+      <div className="relative" ref={boxRef}>
         <svg
           viewBox={`0 0 ${W} ${H}`}
           className="w-full touch-none select-none outline-none"
@@ -76,7 +87,7 @@ export function ErrorChart({ weeks }: { weeks: WeekAccuracy[] }) {
           {ticks.map((t) => (
             <g key={t}>
               <line x1={PAD.left} x2={PAD.left + plotW} y1={y(t)} y2={y(t)} stroke="var(--border)" strokeWidth={1} />
-              <text x={PAD.left - 6} y={y(t)} dy="0.32em" textAnchor="end" fontSize={11} fill="var(--muted)">
+              <text x={PAD.left - 6} y={y(t)} dy="0.32em" textAnchor="end" fontSize={FONT} fill="var(--muted)">
                 {Math.round(t * 100)}%
               </text>
             </g>
@@ -84,7 +95,7 @@ export function ErrorChart({ weeks }: { weeks: WeekAccuracy[] }) {
           {/* x-axis: first and last week labels only, to avoid collisions */}
           {weeks.map((w, i) =>
             i === 0 || i === weeks.length - 1 || i === active ? (
-              <text key={i} x={x(i)} y={H - 8} textAnchor="middle" fontSize={11} fill="var(--muted)">
+              <text key={i} x={x(i)} y={H - 8} textAnchor="middle" fontSize={FONT} fill="var(--muted)">
                 {weekLabel(w.weekStart)}
               </text>
             ) : null,
@@ -116,7 +127,7 @@ export function ErrorChart({ weeks }: { weeks: WeekAccuracy[] }) {
                 ))}
                 {/* Direct label at the end of each line (text in ink color, not series color) */}
                 {last && (
-                  <text x={x(last.i) + 10} y={y(last.v)} dy="0.32em" fontSize={11} fill="var(--text)">
+                  <text x={x(last.i) + 10} y={y(last.v)} dy="0.32em" fontSize={FONT} fill="var(--text)">
                     {s.label === "Your guesses" ? "You" : "App"} {pct(last.v)}
                   </text>
                 )}

@@ -249,3 +249,15 @@ tested without a real login.
   stand-in feature.
 - More page: feedback form (pilot checklist), "Delete my account" with a
   type-to-confirm step (pilot checklist), dashboard link for admins, demo reset.
+
+## Wrap-up checks (end of the overnight build)
+
+- Full production build served under `/homework-planner/` (as on GitHub
+  Pages): demo → plan → Done → Insights → More → admin dashboard all work,
+  no console errors, no sideways scrolling at 380px.
+- Found in that pass: chart labels shrank to ~6px on phones because the SVG
+  was a fixed 560px drawing scaled down. Now the chart measures its real width
+  (ResizeObserver) and draws at that size, so text stays 12px.
+- Step 12 (pooled model) is intentionally not started: PLAN.md says to wait
+  for ~200 real completions and do the analysis yourself in Python first.
+  The CSV export from the admin dashboard is its input.
