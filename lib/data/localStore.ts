@@ -3,6 +3,8 @@
 //
 // It mimics the database's rules (user_id filled in, a class with assignments
 // can't be deleted) so the demo behaves like the real app.
+import { classCategory } from "@/lib/classCategory";
+import type { PilotDataset } from "@/lib/pilot";
 import type { Assignment, Class, Plan } from "@/lib/types";
 import { ClassInUseError, type DataStore } from "./store";
 
@@ -103,6 +105,32 @@ export function createLocalStore(storage: KeyValueStorage, now: () => Date = () 
     },
     async deleteAccount() {
       storage.removeItem(KEY);
+    },
+    // In the demo you're the "admin" of your own device's data, so the pilot
+    // dashboard can be tried out. It shows one anonymized user: you.
+    async isAdmin() {
+      return true;
+    },
+    async adminDataset(): Promise<PilotDataset> {
+      const data = load();
+      const className = new Map(data.classes.map((c) => [c.id, c.name]));
+      const firstSeen = [...data.classes, ...data.assignments].map((x) => x.created_at).sort()[0] ?? stamp();
+      return {
+        users: [{ u: "u1", signed_up_at: firstSeen }],
+        assignments: data.assignments.map((a) => ({
+          u: "u1",
+          class_category: classCategory(className.get(a.class_id) ?? ""),
+          category: a.category,
+          description_length: a.description?.length ?? 0,
+          created_at: a.created_at,
+          due_at: a.due_at,
+          completed_at: a.completed_at,
+          status: a.status,
+          estimated_minutes: a.estimated_minutes,
+          predicted_minutes: a.predicted_minutes,
+          actual_minutes: a.actual_minutes,
+        })),
+      };
     },
   };
 }

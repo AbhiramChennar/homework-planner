@@ -2,6 +2,7 @@
 // database guarantees they only ever touch the signed-in user's rows, which is
 // why there are no `.eq("user_id", ...)` filters here.
 import type { PostgrestError, SupabaseClient } from "@supabase/supabase-js";
+import type { PilotDataset } from "@/lib/pilot";
 import type { Database } from "@/lib/types";
 import { ClassInUseError, type DataStore } from "./store";
 
@@ -57,6 +58,14 @@ export function createSupabaseStore(supabase: SupabaseClient<Database>): DataSto
       // cascades from auth.users, so all their rows go with it.
       check(await supabase.rpc("delete_my_account"));
       await supabase.auth.signOut();
+    },
+    async isAdmin() {
+      const { data, error } = await supabase.rpc("is_admin");
+      return !error && data === true;
+    },
+    async adminDataset() {
+      // The database checks admin rights itself (see the admin migration).
+      return check(await supabase.rpc("admin_dataset")) as unknown as PilotDataset;
     },
   };
 }

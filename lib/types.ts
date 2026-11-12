@@ -124,6 +124,9 @@ export interface Database {
     Views: { [_ in never]: never };
     Functions: {
       delete_my_account: { Args: Record<PropertyKey, never>; Returns: undefined };
+      is_admin: { Args: Record<PropertyKey, never>; Returns: boolean };
+      admin_dataset: { Args: Record<PropertyKey, never>; Returns: unknown };
+      class_category: { Args: { class_name: string }; Returns: string };
     };
     Enums: { [_ in never]: never };
     CompositeTypes: { [_ in never]: never };

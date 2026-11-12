@@ -218,3 +218,34 @@ tested without a real login.
   (orange = your guesses, blue = app). Legend + direct end labels, so color
   is never the only cue; crosshair tooltip on hover/touch, arrow keys for
   keyboard users, and a "Show as a table" view.
+
+## Step 11: pilot admin dashboard and export
+
+- **No service-role key.** PLAN.md suggested an `ADMIN_EMAILS` variable plus a
+  server-only service-role key; a static site has no server to hide a key on.
+  Instead (`supabase/migrations/20261111000200_admin_dashboard.sql`):
+  - `admins` table (emails). RLS on with no policies and all grants revoked,
+    so it's invisible to the API; you add yourself in the SQL Editor.
+  - `is_admin()`: looks up the caller's email by `auth.uid()`, so it can't be faked.
+  - `admin_dataset()`: `security definer`, refuses non-admins, and returns
+    only anonymized rows. Users become random ids ("u1", "u2"…) that change on
+    every call, so exports can't be linked to each other or back to accounts.
+    Class names become a coarse subject (`class_category()`); titles,
+    descriptions and emails never leave the database (a test checks the
+    output for them).
+- `tests/admin.test.ts` proves: admins get data, students get "not
+  authorized", signed-out visitors get "permission denied", the admins table
+  is unreadable, and the TypeScript `classCategory` (used by the demo) agrees
+  with the SQL version.
+- Dashboard math (`lib/pilot.ts`, tested): weekly active users, assignments
+  added per active user per week, completions with time logged, retention
+  ("did anything at least 1/2/3 weeks after signing up"), guess vs app
+  error by week. Quiet weeks still show up as zeros.
+- CSV export: completed assignments only, with user id, subject, category,
+  description *length* (not text), estimated/predicted/actual minutes,
+  lead time in hours (due − created), day of week, date. Step 12 suggests
+  TF-IDF keywords from descriptions, but step 11 says no descriptions in the
+  export; privacy wins (users may be minors). Description length is the
+  stand-in feature.
+- More page: feedback form (pilot checklist), "Delete my account" with a
+  type-to-confirm step (pilot checklist), dashboard link for admins, demo reset.

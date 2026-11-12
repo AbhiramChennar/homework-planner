@@ -7,6 +7,7 @@
 //                     can be tested without a real login).
 // Pages never import Supabase directly, which keeps them simple and lets both
 // modes share all UI code.
+import type { PilotDataset } from "@/lib/pilot";
 import type { Assignment, Category, Class, PlanItem } from "@/lib/types";
 
 export interface NewClass {
@@ -72,4 +73,9 @@ export interface DataStore {
   submitFeedback(message: string): Promise<void>;
   /** Deletes the account and every row that belongs to it. */
   deleteAccount(): Promise<void>;
+
+  /** Whether this user may see the pilot dashboard. */
+  isAdmin(): Promise<boolean>;
+  /** Anonymized data for the pilot dashboard (admins only; throws otherwise). */
+  adminDataset(): Promise<PilotDataset>;
 }

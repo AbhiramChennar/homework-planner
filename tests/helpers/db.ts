@@ -13,7 +13,7 @@ const MIGRATIONS_DIR = join(__dirname, "..", "..", "supabase", "migrations");
 
 const SUPABASE_STUBS = `
   create schema auth;
-  create table auth.users (id uuid primary key, email text);
+  create table auth.users (id uuid primary key, email text, created_at timestamptz not null default now());
   -- Supabase's auth.uid() reads the signed-in user's id from the request's JWT.
   -- We read it from a setting that the tests change with asUser().
   create function auth.uid() returns uuid language sql stable as $$

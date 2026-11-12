@@ -16,6 +16,17 @@ to check it worked. Do them in order.
 If you ever need to start over: run `drop table public.feedback, public.plans,
 public.assignments, public.classes cascade;` first (this deletes all data).
 
+## 1b. Make yourself the pilot admin
+
+In the SQL Editor, run (with **your** email, lowercase):
+
+```sql
+insert into public.admins (email) values ('you@example.com');
+```
+
+Check: sign in to the app → **More** → "Open pilot dashboard" appears. From
+another account, `/admin/` says it's only for the organizer.
+
 ## 2. Sign-in settings (Supabase → Authentication)
 
 **URL Configuration** (so magic links send people to the right site):
