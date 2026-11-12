@@ -28,21 +28,23 @@ const SUPABASE_STUBS = `
   grant usage on schema auth to anon, authenticated;
 `;
 
-// Supabase grants table access to these roles by default; RLS then narrows it.
+// Supabase sets up *default* privileges so every new table and function in
+// `public` is accessible to these roles; RLS policies then narrow it down.
+// Because they're defaults, a `revoke` inside a migration still wins.
 const SUPABASE_GRANTS = `
   grant usage on schema public to anon, authenticated;
-  grant all on all tables in schema public to anon, authenticated;
-  grant execute on all functions in schema public to anon, authenticated;
+  alter default privileges in schema public grant all on tables to anon, authenticated;
+  alter default privileges in schema public grant execute on functions to anon, authenticated;
 `;
 
 export async function createTestDb(): Promise<PGlite> {
   const db = new PGlite();
   await db.exec(SUPABASE_STUBS);
+  await db.exec(SUPABASE_GRANTS);
   const files = readdirSync(MIGRATIONS_DIR).filter((f) => f.endsWith(".sql")).sort();
   for (const file of files) {
     await db.exec(readFileSync(join(MIGRATIONS_DIR, file), "utf8"));
   }
-  await db.exec(SUPABASE_GRANTS);
   return db;
 }
 

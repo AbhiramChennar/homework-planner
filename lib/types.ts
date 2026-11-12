@@ -14,16 +14,16 @@ export type Status = "todo" | "done";
 // Which estimator produced the minutes in a plan.
 export type ModelVersion = "baseline" | "v1-class-factor" | "v2-pooled";
 
-export interface Class {
+export type Class = {
   id: string;
   user_id: string;
   name: string; // "AP US History"
   short_name: string | null; // "hist" (used by quick-add)
   color: string | null; // "#3b82f6"
   created_at: string; // ISO timestamp (Supabase returns timestamps as strings)
-}
+};
 
-export interface Assignment {
+export type Assignment = {
   id: string;
   user_id: string;
   class_id: string;
@@ -37,23 +37,30 @@ export interface Assignment {
   status: Status;
   created_at: string;
   completed_at: string | null;
-}
+};
 
 /** One entry in a saved plan's `items` array. */
-export interface PlanItem {
+export type PlanItem = {
   assignment_id: string;
   minutes: number;
   order: number;
-}
+};
 
-export interface Plan {
+export type Plan = {
   id: string;
   user_id: string;
   available_minutes: number;
   items: PlanItem[];
   model_version: string;
   created_at: string;
-}
+};
+
+export type Feedback = {
+  id: string;
+  user_id: string;
+  message: string;
+  created_at: string;
+};
 
 // Insert types: columns with database defaults (id, user_id, created_at, ...)
 // are optional because Postgres fills them in.
@@ -98,10 +105,18 @@ export interface Database {
         Update: Partial<Plan>;
         Relationships: [];
       };
+      feedback: {
+        Row: Feedback;
+        Insert: Pick<Feedback, "message"> & Partial<Omit<Feedback, "message">>;
+        Update: Partial<Feedback>;
+        Relationships: [];
+      };
     };
     Views: { [_ in never]: never };
-    Functions: { [_ in never]: never };
+    Functions: {
+      delete_my_account: { Args: Record<PropertyKey, never>; Returns: undefined };
+    };
     Enums: { [_ in never]: never };
     CompositeTypes: { [_ in never]: never };
   };
-}
+};

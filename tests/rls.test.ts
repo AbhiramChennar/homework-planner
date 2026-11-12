@@ -142,11 +142,31 @@ describe("constraints", () => {
     await expect(db.query("delete from public.classes")).rejects.toThrow(/foreign key/);
   });
 
-  it("deletes all of a user's data when their account is deleted", async () => {
+});
+
+describe("feedback and account deletion", () => {
+  it("lets users send feedback but not read it", async () => {
+    await asUser(db, BOB);
+    await db.query("insert into public.feedback (message) values ('love it')");
+    expect(await count("feedback")).toBe(0);
     await asOwner(db);
-    await db.query("delete from auth.users where id = $1", [ALICE]);
+    expect(await count("feedback")).toBe(1);
+  });
+
+  it("does not let signed-out visitors delete accounts", async () => {
+    await asAnon(db);
+    await expect(db.query("select public.delete_my_account()")).rejects.toThrow(/permission denied/);
+  });
+
+  it("delete_my_account removes only the caller and all their data", async () => {
+    await asUser(db, ALICE);
+    await db.query("select public.delete_my_account()");
+    await asOwner(db);
+    const users = await db.query<{ id: string }>("select id from auth.users");
+    expect(users.rows).toEqual([{ id: BOB }]);
     expect(await count("classes")).toBe(0);
     expect(await count("assignments")).toBe(0);
     expect(await count("plans")).toBe(0);
+    expect(await count("feedback")).toBe(1); // Bob's feedback is untouched
   });
 });
