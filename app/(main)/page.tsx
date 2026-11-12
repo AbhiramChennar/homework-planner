@@ -4,6 +4,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { AssignmentCard } from "@/components/AssignmentCard";
 import { useAuth } from "@/components/AuthProvider";
+import { DoneButton } from "@/components/Completion";
 import { useData } from "@/components/DataProvider";
 import { Button, Card, Field, Input, Notice, PageTitle, Spinner } from "@/components/ui";
 import { useNow } from "@/components/useNow";
@@ -233,7 +234,12 @@ function WorkRow({
   }
   return (
     <div className="space-y-1">
-      <AssignmentCard assignment={a} cls={classById.get(a.class_id)} now={now} />
+      <AssignmentCard
+        assignment={a}
+        cls={classById.get(a.class_id)}
+        now={now}
+        actions={<DoneButton assignment={a} />}
+      />
       {step.isChunk && (
         <p className="pl-2 text-xs text-muted">
           Work on this for {formatMinutes(step.minutes)} tonight (the whole thing is about{" "}

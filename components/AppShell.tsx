@@ -11,6 +11,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useAuth } from "./AuthProvider";
+import { CompletionProvider } from "./Completion";
 import { DataProvider, useData } from "./DataProvider";
 import { Spinner } from "./ui";
 
@@ -67,7 +68,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             })}
           </nav>
         </header>
-        <main className="flex-1 px-4 py-5">{children}</main>
+        <main className="flex-1 px-4 pt-5 pb-24">
+          <CompletionProvider>{children}</CompletionProvider>
+        </main>
       </div>
       <FirstRunRedirect pathname={pathname} />
     </DataProvider>

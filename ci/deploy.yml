@@ -1,0 +1,64 @@
+# Copy this file to .github/workflows/deploy.yml to turn it on (see SETUP.md).
+#
+# On every push to main: run the tests, build the static site, and publish it
+# to GitHub Pages at https://<your-username>.github.io/homework-planner/
+#
+# One-time setup (see SETUP.md):
+#   1. Repo Settings → Pages → Source: "GitHub Actions".
+#   2. Repo Settings → Secrets and variables → Actions → Variables tab, add:
+#        NEXT_PUBLIC_SUPABASE_URL
+#        NEXT_PUBLIC_SUPABASE_ANON_KEY
+#      (Variables, not secrets: these values end up in the public site anyway,
+#      which is fine because RLS protects the data.)
+# Until the variables exist, tests still run but the deploy step is skipped.
+name: Test and deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: # lets you re-run it by hand from the Actions tab
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Never run two deploys at once; a newer push cancels an older one.
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm test
+      - name: Build static site
+        if: vars.NEXT_PUBLIC_SUPABASE_URL != ''
+        run: npm run build
+        env:
+          NEXT_PUBLIC_BASE_PATH: /${{ github.event.repository.name }}
+          NEXT_PUBLIC_SUPABASE_URL: ${{ vars.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ vars.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+      - uses: actions/upload-pages-artifact@v3
+        if: vars.NEXT_PUBLIC_SUPABASE_URL != ''
+        with:
+          path: out
+
+  deploy:
+    needs: test-and-build
+    if: vars.NEXT_PUBLIC_SUPABASE_URL != ''
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

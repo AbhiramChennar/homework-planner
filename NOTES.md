@@ -155,3 +155,24 @@ tested without a real login.
   there after switching pages; it expires at midnight. Every plan is also
   saved to the `plans` table with `model_version` for later analysis.
 - No `/api/schedule` route: the scheduler is a pure function and runs in the browser.
+
+## Step 8: completion, PWA, deploy
+
+- "Done" button on every assignment and plan row → "How long did it actually
+  take?" with one-tap answers (your estimate, ±15, ±30; `lib/completion.ts`),
+  a custom number, or Skip (done, no time logged). Undo bar for 10 seconds.
+  Logging must be one tap: it's the data the estimator learns from.
+- The one-tap answers center on the *student's estimate*, not the model's
+  prediction, so the buttons don't nudge students toward the model's number
+  (that would bias the accuracy comparison in step 10).
+- PWA: `app/manifest.ts` (static manifest with base path), icons drawn by
+  `scripts/make-icons.mjs` (no image libraries: geometry → pixels → PNG),
+  `public/sw.js` service worker (network-first pages, cache-first hashed
+  assets, never touches Supabase requests), registered only in production.
+- Deploy: `ci/deploy.yml` (to be copied to `.github/workflows/`, see SETUP.md) runs lint + tests, builds with
+  `NEXT_PUBLIC_BASE_PATH=/homework-planner`, publishes to GitHub Pages. The
+  deploy is skipped until the Supabase variables are set in the repo, so it
+  can't fail before Pages is enabled. Steps for you are in SETUP.md.
+- Tested a production build served under `/homework-planner/` locally:
+  redirects, links, deep links, manifest, icons and service worker scope all
+  include the base path.

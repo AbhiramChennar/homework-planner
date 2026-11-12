@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { AssignmentCard } from "@/components/AssignmentCard";
+import { DoneButton } from "@/components/Completion";
 import { AssignmentForm, type AssignmentFormResult, type AssignmentFormValues } from "@/components/AssignmentForm";
 import { useData } from "@/components/DataProvider";
 import { Dialog } from "@/components/Dialog";
@@ -148,6 +149,7 @@ export default function AssignmentsPage() {
                     cls={classById.get(a.class_id)}
                     now={now}
                     onOpen={() => setDialog({ kind: "edit", assignment: a })}
+                    actions={<DoneButton assignment={a} />}
                   />
                 </li>
               ))}
